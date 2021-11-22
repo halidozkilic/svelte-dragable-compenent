@@ -63,13 +63,21 @@
 
 <!--drop zone-->
 <div
+        class="lines drop_zone"
         on:drop={handleDragDrop}
         bind:this={drop_zone}
-        id="drop_zone"
+
         ondragover="return false"
 >
 </div>
+<div
+        class="lines drop_zone"
+        on:drop={handleDragDrop}
+        bind:this={drop_zone}
 
+        ondragover="return false"
+>
+</div>
 
 <!--element list-->
 {#each objects as { id }, i}
@@ -94,16 +102,25 @@
         -webkit-user-select: none;
     }
 
-    #drop_zone {
+    .drop_zone {
         background-color: #eee;
         border: #999 1px solid ;
         width: auto;
-        height: auto;
         min-width:50px;
-        min-height:100px;
+        height:100px;
         padding: 8px;
         font-size: 19px;
     }
+    .lines {
+        overflow-x: auto;
+        overflow-y: hidden;
+        display: grid;
+        grid-gap: 16px;
+        grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(160px,1fr);
+    }
+
 
     .objects {
         display: inline-block;
@@ -118,6 +135,7 @@
         box-shadow: 2px 2px 2px #999;
         cursor: move;
         margin-bottom: 33px;
+
     }
 
     .droppedElements {
