@@ -1,21 +1,53 @@
 <script>
+    import {createEventDispatcher} from 'svelte';
+
+    const dispatch = createEventDispatcher();
+
     let drop_zone;
-    let drop_zones = [];
+    let drop_zones = [
+        [
+            {el: null, id: 1},
+            {el: null, id: 2},
+            {el: null, id: 3},
+        ],
+        [
+            {el: null, id: 1},
+            {el: null, id: 2},
+            {el: null, id: 3},
+            {el: null, id: 4},
+            {el: null, id: 5},
+            {el: null, id: 6},
+            {el: null, id: 7},
+        ],
+        [
+            {el: null, id: 4},
+            {el: null, id: 5},
+            {el: null, id: 6},
+            {el: null, id: 7},
+            {el: null, id: 8},
+            {el: null, id: 9},
+            {el: null, id: 10},
+            {el: null, id: 11},
+            {el: null, id: 12},
+            {el: null, id: 13}
+        ]
+
+    ];
 
     let objects = [
-        { el: null, id: 1 },
-        { el: null, id: 2 },
-        { el: null, id: 3 },
-        { el: null, id: 4 },
-        { el: null, id: 5 },
-        { el: null, id: 6 },
-        { el: null, id: 7 },
-        { el: null, id: 8 },
-        { el: null, id: 9 },
-        { el: null, id: 10 },
-        { el: null, id: 11 },
-        { el: null, id: 12 },
-        { el: null, id: 13 }
+        {el: null, id: 1},
+        {el: null, id: 2},
+        {el: null, id: 3},
+        {el: null, id: 4},
+        {el: null, id: 5},
+        {el: null, id: 6},
+        {el: null, id: 7},
+        {el: null, id: 8},
+        {el: null, id: 9},
+        {el: null, id: 10},
+        {el: null, id: 11},
+        {el: null, id: 12},
+        {el: null, id: 13}
     ];
 
     let dropped = [];
@@ -25,17 +57,38 @@
     let activeEvent = '';
     let originalX = '';
     let originalY = '';
+    let index = 0;
+
+    function handleDragDrop(e, j) {
+        if (j != undefined) {
+            console.log('var')
+            index = j
+            drop_zones[index] = drop_zones[index].concat(e.dataTransfer.getData("text"))
+            console.log(drop_zones[index])
+        }
+
+        let elements = document.elementsFromPoint
 
 
-    function handleDragDrop(e) {
         e.preventDefault();
         dropped = dropped.concat(e.dataTransfer.getData("text"));
+        console.log(dropped)
         dropped_in = true;
+
+
+        // const data=e.dataTransfer.getData("text");
+        // const nodeCopy = document.getElementById(data).cloneNode(true);
+        // nodeCopy.id = "newId";
+        // e.target.appendChild(nodeCopy);
     }
 
     function handleDragStart(e) {
         e.dataTransfer.dropEffect = "move";
-        e.dataTransfer.setData("text", e.target.getAttribute('id'));
+        // e.dataTransfer.setData("text", e.target.getAttribute('id'));
+
+        e.dataTransfer.setData("text", e.target.id);
+        e.dataTransfer.effectAllowed = "copy";
+
     }
 
     function handleDragEnd(e) {
@@ -45,71 +98,36 @@
         dropped_in = false;
     }
 
-    function handleTouchStart(e) {
-        originalX = (e.target.offsetLeft - 10) + "px";
-        originalY = (e.target.offsetTop - 10) + "px";
-        activeEvent = 'start';
-    }
-
-    function handleTouchMove(e) {
-        let touchLocation = e.targetTouches[0];
-        let pageX = Math.floor((touchLocation.pageX - 50)) + "px";
-        let pageY = Math.floor((touchLocation.pageY - 50)) + "px";
-        status = "Touch x " + pageX + " Touch y " + pageY;
-        e.target.style.position = "absolute";
-        e.target.style.left = pageX;
-        e.target.style.top = pageY;
-        activeEvent = 'move';
-    }
-
-    function handleTouchEnd(e) {
-        e.preventDefault();
-        if (activeEvent === 'move') {
-            let pageX = (parseInt(e.target.style.left) - 50);
-            let pageY = (parseInt(e.target.style.top) - 50);
-
-            if (detectTouchEnd(drop_zone.offsetLeft, drop_zone.offsetTop, pageX, pageY, drop_zone.offsetWidth, drop_zone.offsetHeight)) {
-                dropped = dropped.concat(e.target.id);
-                e.target.style.position = "initial";
-                dropped_in = true;
-            } else {
-                e.target.style.left = originalX;
-                e.target.style.top = originalY;
-            }
-        }
-    }
-
-    function detectTouchEnd(x1, y1, x2, y2, w, h) {
-        //Very simple detection here
-        if (x2 - x1 > w)
-            return false;
-        if (y2 - y1 > h)
-            return false;
-        return true;
-    }
 
 </script>
 
 
-
+<!--drop zone-->
 <div
+        className="drop_zone"
         on:drop={handleDragDrop}
         bind:this={drop_zone}
-        id="drop_zone"
-        ondragover="return false"
+        onDragOver="return false"
 >
-    {#each objects.filter(v => dropped.includes(`${v.id}`)) as {id}, i}
-
-        <div class="objects" id={id} style="cursor: auto">
-            Object {id}
+    {#each drop_zones as lineArr , j}
+        <div
+                className="lines"
+                on:drop={(e) => handleDragDrop(e,j)}
+        >
+            {#each lineArr as {id} , i}
+                <div
+                        className="objects"
+                >
+                    Object { id }
+                </div>
+            {/each}
         </div>
-
     {/each}
+
 </div>
 
-
-
-{#each objects as { id }, i}
+<!--element list-->
+{#each objects as {id}, i}
     <div
             id="{id}"
             class="objects"
@@ -117,34 +135,40 @@
             bind:this={objects[i].el}
             on:dragstart={handleDragStart}
             on:dragend={handleDragEnd}
-            on:touchstart={handleTouchStart}
-            on:touchmove={handleTouchMove}
-            on:touchend={handleTouchEnd}
     >
         Object { id }
     </div>
 {/each}
 
 <style>
-
     :global(html), :global(body) {
         margin: 0;
         height: 100%;
-        overflow: hidden;
         user-select: none;
         -webkit-user-select: none;
     }
 
-    #drop_zone {
+    .drop_zone {
         background-color: #eee;
-        border: #999 1px solid ;
+        border: #999 1px solid;
         width: auto;
-        height: auto;
-        min-width:50px;
-        min-height:100px;
+        min-width: 50px;
+        min-height: 50px;
         padding: 8px;
         font-size: 19px;
+        overflow-x: auto;
+        overflow-y: hidden;
     }
+
+    .lines {
+
+        display: grid;
+        grid-gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(160px, 1fr);
+    }
+
 
     .objects {
         display: inline-block;
@@ -158,5 +182,21 @@
         text-align: center;
         box-shadow: 2px 2px 2px #999;
         cursor: move;
+        margin-bottom: 33px;
+
+    }
+
+    .droppedElements {
+
+        background-color: #FFF3CC;
+        border: #DFBC6A 1px solid;
+        width: 50px;
+        height: 50px;
+        margin: 10px;
+        padding: 8px;
+        font-size: 18px;
+        text-align: center;
+        box-shadow: 2px 2px 2px #999;
+        margin-bottom: 22px;
     }
 </style>

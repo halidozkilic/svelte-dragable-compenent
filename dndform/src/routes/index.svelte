@@ -1,154 +1,165 @@
 <script>
-    let drop_zone;
-    let drop_zones = [];
+    let dragCount = 0
+    let status = ''
+    let dragData;
+    let hoveredItem;
 
-    let objects = [
-        { el: null, id: 1 },
-        { el: null, id: 2 },
-        { el: null, id: 3 },
-        { el: null, id: 4 },
-        { el: null, id: 5 },
-        { el: null, id: 6 },
-        { el: null, id: 7 },
-        { el: null, id: 8 },
-        { el: null, id: 9 },
-        { el: null, id: 10 },
-        { el: null, id: 11 },
-        { el: null, id: 12 },
-        { el: null, id: 13 }
-    ];
-
-    let dropped = [];
-    let status = '';
-
-    let dropped_in = '';
-    let activeEvent = '';
-    let originalX = '';
-    let originalY = '';
-
-
-    function handleDragDrop(e) {
-        e.preventDefault();
-        dropped = dropped.concat(e.dataTransfer.getData("text"));
-        console.log('basarili')
-
-        dropped_in = true;
-        const data=e.dataTransfer.getData("text");
-        /* If you use DOM manipulation functions, their default behaviour it not to
-           copy but to alter and move elements. By appending a ".cloneNode(true)",
-           you will not move the original element, but create a copy. */
-        const nodeCopy = document.getElementById(data).cloneNode(true);
-        nodeCopy.id = "newId"; /* We cannot use the same ID */
-        e.target.appendChild(nodeCopy);
-    }
-
-    function handleDragStart(e) {
-        e.dataTransfer.dropEffect = "move";
-        // e.dataTransfer.setData("text", e.target.getAttribute('id'));
-
-        e.dataTransfer.setData("text", e.target.id);
-        e.dataTransfer.effectAllowed = "copy";
-    }
-
-    function handleDragEnd(e) {
-        if (dropped_in == false) {
-            console.log('deneme')
+    let dragItems = [
+        {
+            id:1,
+            title:'Drag Item 1',
+            color:'red'
+        },
+        {
+            id:2,
+            title:'Drag Item 2',
+            color:'green'
+        },
+        {
+            id:3 ,
+            title:'Drag Item 3',
+            color:'blue'
         }
-        dropped_in = false;
+    ]
+
+    function pdown(ev) {
+        ev.preventDefault()
+        status = 'moving';
+        const clone = ev.target.cloneNode(true);
+
+        // clone.style.left = (ev.clientX-clone.offsetWidth/2) + "px";
+        // clone.style.top =  (ev.clientY-clone.offsetHeight/2)+ "px"
+        clone.style.width = "200px";
+        clone.style.position = "absolute"
+
+        dragData = {
+            clone,
+            itemId: Number(ev.target.getAttribute('data-id'))
+        };
+
+        //document.body.appendChild(clone);
+        window.addEventListener('pointermove',pMove);
+        window.addEventListener('pointerup',pUp);
     }
 
+    function pUp(ev) {
+        window.removeEventListener('pointermove',pMove);
+        window.removeEventListener('pointerup',pUp);
+        status = 'dropped'
+
+        dragData.clone.remove()
+        dragData = null
+    }
+
+    function pMove(ev){
+        if(!dragData.clone.parentNode){
+            document.body.appendChild(dragData.clone)
+        }
+
+        dragData.clone.style.left = (ev.clientX - dragData.clone.offsetWidth/2) + "px";
+        dragData.clone.style.top =  (ev.clientY - dragData.clone.offsetHeight/2)+ "px";
+
+        const itemId = dragData.itemId
+        const item = dragItems.find(o=> o.id === itemId)
+
+        const elements = document.elementsFromPoint(ev.clientX,ev.clientY);
+        if(elements[1] && elements[1].classList.contains('field')){
+            elements[1].setAttribute('highlight','1');
+
+        }
+
+
+    }
 
 </script>
 
-
 <!--drop zone-->
 <div
-        class="lines drop_zone"
-        on:drop={handleDragDrop}
-        bind:this={drop_zone}
-
-        ondragover="return false"
+        class="zone"
 >
-</div>
-<div
-        class="lines drop_zone"
-        on:drop={handleDragDrop}
-        bind:this={drop_zone}
-
-        ondragover="return false"
->
-</div>
-
-<!--element list-->
-{#each objects as { id }, i}
     <div
-            id="{id}"
-            class="objects"
-            draggable=true
-            bind:this={objects[i].el}
-            on:dragstart={handleDragStart}
-            on:dragend={handleDragEnd}
+            class="lines"
+            id="1"
     >
-        Object { id }
+        <div class="cells field" style="background-color: blue" highlight="1">mavi</div>
+        <div class="cells field" style="background-color: green">yesil</div>
     </div>
-{/each}
+
+    <div
+            class="lines"
+            id="2"
+    >
+        <div class="cells field" style="background-color: yellow">sari</div>
+        <div class="cells field" style="background-color: orange">turuncu</div>
+        <div class="cells field" style="background-color: blue">mavi</div>
+    </div>
+
+    <div
+            class="lines"
+            id="3"
+    >
+        <div class="cells field" style="background-color: green">yesil</div>
+    </div>
+
+    <div
+            class="lines"
+            id="4"
+    >
+        <div class="cells field" style="background-color: yellow">sari</div>
+        <div class="cells field" style="background-color: blue">mavi</div>
+        <div class="cells field" style="background-color: orange">turuncu</div>
+        <div class="cells field" style="background-color: red">kirmizi</div>
+    </div>
+</div>
+
+<div class="drag-list" id="dragList">
+    {#each dragItems as item }
+    <div
+            class="cells"
+            draggable="true"
+            on:dragstart={pdown}
+            data-id="{item.id}"
+            style="background-color: {item.color};"
+    >
+        {item.title}
+    </div>
+        {/each}
+</div>
+
+
 
 <style>
     :global(html), :global(body) {
         margin: 0;
         height: 100%;
-        overflow: hidden;
         user-select: none;
         -webkit-user-select: none;
     }
-
-    .drop_zone {
-        background-color: #eee;
-        border: #999 1px solid ;
-        width: auto;
-        min-width:50px;
-        height:100px;
-        padding: 8px;
+    .lines{
         font-size: 19px;
-    }
-    .lines {
-        overflow-x: auto;
-        overflow-y: hidden;
-        display: grid;
-        grid-gap: 16px;
-        grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
-        grid-auto-flow: column;
-        grid-auto-columns: minmax(160px,1fr);
-    }
-
-
-    .objects {
-        display: inline-block;
-        background-color: #FFF3CC;
-        border: #DFBC6A 1px solid;
-        width: 50px;
-        height: 50px;
-        margin: 10px;
-        padding: 8px;
-        font-size: 18px;
+        display: flex;
         text-align: center;
-        box-shadow: 2px 2px 2px #999;
-        cursor: move;
-        margin-bottom: 33px;
 
     }
-
-    .droppedElements {
-
-        background-color: #FFF3CC;
-        border: #DFBC6A 1px solid;
-        width: 50px;
-        height: 50px;
-        margin: 10px;
-        padding: 8px;
-        font-size: 18px;
-        text-align: center;
-        box-shadow: 2px 2px 2px #999;
-        margin-bottom: 22px;
+    .cells{
+        border:  1px solid;
+        width: 100%;
     }
+    .zone {
+        background-color: #eee;
+        border: #999 1px solid;
+        width: 100%;
+        height: 100%;
+        margin-bottom: 50px;
+    }
+
+    .drag-list{
+        border:1px solid;
+        width: 200px;
+    }
+
+    .field[highlight="1"] {
+        border: 1px solid white;
+    }
+
 </style>
