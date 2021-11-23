@@ -27,8 +27,6 @@
         status = 'moving';
         const clone = ev.target.cloneNode(true);
 
-        // clone.style.left = (ev.clientX-clone.offsetWidth/2) + "px";
-        // clone.style.top =  (ev.clientY-clone.offsetHeight/2)+ "px"
         clone.style.width = "200px";
         clone.style.position = "absolute"
 
@@ -37,7 +35,6 @@
             itemId: Number(ev.target.getAttribute('data-id'))
         };
 
-        //document.body.appendChild(clone);
         window.addEventListener('pointermove',pMove);
         window.addEventListener('pointerup',pUp);
     }
@@ -45,10 +42,12 @@
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        status = 'dropped'
+        if(status==='delete'){
+            dragData.clone.remove()
+            dragData = null
+        }
 
-        dragData.clone.remove()
-        dragData = null
+
     }
 
     function pMove(ev){
@@ -63,12 +62,22 @@
         const item = dragItems.find(o=> o.id === itemId)
 
         const elements = document.elementsFromPoint(ev.clientX,ev.clientY);
+        console.log(elements)
+
+        //dropping exist line
         if(elements[1] && elements[1].classList.contains('field')){
-            elements[1].setAttribute('highlight','1');
-
+           // elements[1].setAttribute('highlight','1');
+            status = 'exist'
         }
-
-
+        //dropping new line (could be top or bottom)
+        else if(elements[1] && elements[1].classList.contains('zone')){
+            status = 'new'
+            console.log(elements[1])
+        }
+        //out side of drop zone
+        else {
+            status = 'delete'
+        }
     }
 
 </script>
@@ -149,7 +158,7 @@
         background-color: #eee;
         border: #999 1px solid;
         width: 100%;
-        height: 100%;
+        height: 300px;
         margin-bottom: 50px;
     }
 
