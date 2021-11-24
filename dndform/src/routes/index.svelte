@@ -3,23 +3,87 @@
     let status = ''
     let dragData;
     let hoveredItem;
-
     let dragItems = [
         {
             id:1,
             title:'Drag Item 1',
-            color:'red'
+            color:'brown'
         },
         {
             id:2,
             title:'Drag Item 2',
             color:'green'
+        },        {
+            id:3,
+            title:'Drag Item 3',
+            color:'pink'
         },
         {
-            id:3 ,
-            title:'Drag Item 3',
-            color:'blue'
+            id:4 ,
+            title:'Drag Item 4',
+            color:'grey'
         }
+    ]
+
+    let dropZoneItems = [
+        [
+              {
+                    id:13,
+                    title:'blue',
+                    color:'blue'
+              },
+              // {
+              //       id:14,
+              //       title:'green',
+              //       color:'green'
+              // },
+        ],
+        [
+            {
+                id:5,
+                title:'yellow',
+                color:'yellow'
+            },
+            // {
+            //     id:6,
+            //     title:'orange',
+            //     color:'orange'
+            // },
+            // {
+            //     id:7,
+            //     title:'blue',
+            //     color:'blue'
+            // }
+        ],
+        [
+            {
+                id:8,
+                title:'green',
+                color:'green'
+            }
+        ],
+        [
+            // {
+            //     id:9,
+            //     title:'yellow',
+            //     color:'yellow'
+            // },
+            // {
+            //     id:10,
+            //     title:'blue',
+            //     color:'blue'
+            // },
+            // {
+            //     id:11,
+            //     title:'orange',
+            //     color:'orange'
+            // },
+            {
+                id:12,
+                title:'red',
+                color:'red'
+            }
+        ],
     ]
 
     function pdown(ev) {
@@ -28,11 +92,12 @@
         const clone = ev.target.cloneNode(true);
 
         clone.style.width = "200px";
-        clone.style.position = "absolute"
-
+        clone.style.position = "absolute";
+        clone.style.opacity = 0.3
+        const item = dragItems.find(o=> o.id === Number(ev.target.getAttribute('data-id')))
         dragData = {
             clone,
-            itemId: Number(ev.target.getAttribute('data-id'))
+            item: item
         };
 
         window.addEventListener('pointermove',pMove);
@@ -42,12 +107,12 @@
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        if(status==='delete'){
-            dragData.clone.remove()
-            dragData = null
+        if(status==='exist'){
+            dropZoneItems.splice(dragData.target, 0, [dragData.item]);
+            dropZoneItems = dropZoneItems
         }
-
-
+        dragData.clone.remove()
+        dragData = null
     }
 
     function pMove(ev){
@@ -58,21 +123,31 @@
         dragData.clone.style.left = (ev.clientX - dragData.clone.offsetWidth/2) + "px";
         dragData.clone.style.top =  (ev.clientY - dragData.clone.offsetHeight/2)+ "px";
 
-        const itemId = dragData.itemId
-        const item = dragItems.find(o=> o.id === itemId)
-
         const elements = document.elementsFromPoint(ev.clientX,ev.clientY);
+        let underElement = elements[1].getBoundingClientRect();
+        let left = ev.clientX - underElement.left; //x position within the element.
+        let top = ev.clientY - underElement.top;  //y position within the element.
         console.log(elements)
 
         //dropping exist line
         if(elements[1] && elements[1].classList.contains('field')){
-           // elements[1].setAttribute('highlight','1');
             status = 'exist'
+            //alt satira
+            if(top > elements[1].offsetHeight/2){
+            dragData.target = Number(elements[2].id) + 1
+            console.log(dragData)
+            }
+            //ust satira
+            else {
+                dragData.target = elements[1].classList.contains('field') ?  Number(elements[3].id) : Number(elements[2].id)
+                console.log(dragData)
+                console.log('ust satira')
+            }
         }
         //dropping new line (could be top or bottom)
         else if(elements[1] && elements[1].classList.contains('zone')){
             status = 'new'
-            console.log(elements[1])
+
         }
         //out side of drop zone
         else {
@@ -86,39 +161,16 @@
 <div
         class="zone"
 >
+    {#each dropZoneItems as lines, j }
     <div
             class="lines"
-            id="1"
+            id={j}
     >
-        <div class="cells field" style="background-color: blue" highlight="1">mavi</div>
-        <div class="cells field" style="background-color: green">yesil</div>
+        {#each lines as items, i }
+        <div class="cells field" style="background-color: {items.color}">{items.title}</div>
+        {/each}
     </div>
-
-    <div
-            class="lines"
-            id="2"
-    >
-        <div class="cells field" style="background-color: yellow">sari</div>
-        <div class="cells field" style="background-color: orange">turuncu</div>
-        <div class="cells field" style="background-color: blue">mavi</div>
-    </div>
-
-    <div
-            class="lines"
-            id="3"
-    >
-        <div class="cells field" style="background-color: green">yesil</div>
-    </div>
-
-    <div
-            class="lines"
-            id="4"
-    >
-        <div class="cells field" style="background-color: yellow">sari</div>
-        <div class="cells field" style="background-color: blue">mavi</div>
-        <div class="cells field" style="background-color: orange">turuncu</div>
-        <div class="cells field" style="background-color: red">kirmizi</div>
-    </div>
+    {/each}
 </div>
 
 <div class="drag-list" id="dragList">
@@ -135,8 +187,6 @@
         {/each}
 </div>
 
-
-
 <style>
     :global(html), :global(body) {
         margin: 0;
@@ -148,7 +198,7 @@
         font-size: 19px;
         display: flex;
         text-align: center;
-
+        height: 40px;
     }
     .cells{
         border:  1px solid;
@@ -170,5 +220,4 @@
     .field[highlight="1"] {
         border: 1px solid white;
     }
-
 </style>
