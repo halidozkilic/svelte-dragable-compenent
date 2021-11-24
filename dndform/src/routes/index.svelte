@@ -108,6 +108,7 @@
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
         if(status==='exist'){
+            console.log(dragData)
             dropZoneItems.splice(dragData.target, 0, [dragData.item]);
             dropZoneItems = dropZoneItems
         }
@@ -134,20 +135,16 @@
             status = 'exist'
             //alt satira
             if(top > elements[1].offsetHeight/2){
-            dragData.target = Number(elements[2].id) + 1
-            console.log(dragData)
+                dragData.target = Number(elements[2].id) + 1
             }
             //ust satira
             else {
-                dragData.target = elements[1].classList.contains('field') ?  Number(elements[3].id) : Number(elements[2].id)
-                console.log(dragData)
-                console.log('ust satira')
+                dragData.target = elements[2].classList.contains('field') ?  Number(elements[3].id) : Number(elements[2].id)
             }
         }
         //dropping new line (could be top or bottom)
         else if(elements[1] && elements[1].classList.contains('zone')){
             status = 'new'
-
         }
         //out side of drop zone
         else {
