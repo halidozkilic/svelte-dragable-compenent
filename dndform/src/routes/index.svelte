@@ -109,11 +109,13 @@
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        // if(status==='exist'){
-        //     console.log(dragData)
-        //     dropZoneItems.splice(dragData.line, 0, [dragData.item]);
-        //     dropZoneItems = dropZoneItems
-        // }
+        if(status==='add'){
+            console.log(dragData)
+            dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 0, dragData.item)
+            : dropZoneItems.splice(dragData.line, 0, [dragData.item]);
+
+            dropZoneItems = dropZoneItems
+        }
         dragData.clone.remove()
         dragData = null
     }
@@ -130,31 +132,22 @@
         let underElement = elements[1].getBoundingClientRect();
         let left = ev.clientX - underElement.left; //x position within the element.
         let top = ev.clientY - underElement.top;  //y position within the element.
-        console.log(elements)
-
+       //console.log(elements)
         //dropping exist line
         if(elements[1] && elements[1].classList.contains('field')){
-            status = 'line'
-
-
-            calculateAway(elements,left,top)
-
-            topAway < leftAway ? calculateLineDrop(elements,left,top) : calculateInlineDrop(elements,left,top)
-
-
-
-
-
-
-
-            dragData.inLine = left > elements[1].offsetWidth/2 ? dragData.inLine= Number(elements[1].id) + 1 : dragData.inLine = Number(elements[2].id)
-
-            console.log(dragData)
-
+            status = 'add'
+            console.log(elements)
+            if(left < elements[1].offsetWidth/4 || left > elements[1].offsetWidth*3/4){
+             calculateInlineDrop(elements,left)
+             dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+            }
+            else{
+                calculateLineDrop(elements,top)
+            }
         }
         //dropping new line (could be top or bottom)
         else if(elements[1] && elements[1].classList.contains('zone')){
-            status = 'new'
+            status = 'first'
         }
         //out side of drop zone
         else {
@@ -162,20 +155,15 @@
         }
     }
 
-    function calculateAway(elements,left,top){
-         leftAway = left < elements[1].offsetWidth/2 ? left : elements[1].offsetWidth - left
-
-         topAway  =  top  < elements[1].offsetHeight/2 ? top  : elements[1].offsetHeight - top
-    }
-
-    function calculateLineDrop(elements,left,top){
+    function calculateLineDrop(elements,top){
+            delete dragData.Inline
             dragData.line = top > elements[2].offsetHeight/2 ? Number(elements[2].id) + 1
             : elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
     }
 
-    function calculateInlineDrop(elements,left,top){
-        // dragData.line = top > elements[2].offsetHeight/2 ? Number(elements[2].id) + 1
-        //     : elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+    function calculateInlineDrop(elements,left){
+            dragData.Inline = left > elements[1].offsetWidth/2 ? Number(elements[1].id) + 1
+            : elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
     }
 
 </script>
