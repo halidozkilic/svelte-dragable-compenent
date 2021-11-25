@@ -1,8 +1,10 @@
 <script>
     let dragCount = 0
-    let status = ''
+    let status = '';
     let dragData;
     let hoveredItem;
+    let leftAway;
+    let topAway;
     let dragItems = [
         {
             id:1,
@@ -63,21 +65,21 @@
             }
         ],
         [
-            // {
-            //     id:9,
-            //     title:'yellow',
-            //     color:'yellow'
-            // },
-            // {
-            //     id:10,
-            //     title:'blue',
-            //     color:'blue'
-            // },
-            // {
-            //     id:11,
-            //     title:'orange',
-            //     color:'orange'
-            // },
+            {
+                id:9,
+                title:'yellow',
+                color:'yellow'
+            },
+            {
+                id:10,
+                title:'blue',
+                color:'blue'
+            },
+            {
+                id:11,
+                title:'orange',
+                color:'orange'
+            },
             {
                 id:12,
                 title:'red',
@@ -107,11 +109,11 @@
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        if(status==='exist'){
-            console.log(dragData)
-            dropZoneItems.splice(dragData.target, 0, [dragData.item]);
-            dropZoneItems = dropZoneItems
-        }
+        // if(status==='exist'){
+        //     console.log(dragData)
+        //     dropZoneItems.splice(dragData.line, 0, [dragData.item]);
+        //     dropZoneItems = dropZoneItems
+        // }
         dragData.clone.remove()
         dragData = null
     }
@@ -132,15 +134,23 @@
 
         //dropping exist line
         if(elements[1] && elements[1].classList.contains('field')){
-            status = 'exist'
-            //alt satira
-            if(top > elements[1].offsetHeight/2){
-                dragData.target = Number(elements[2].id) + 1
-            }
-            //ust satira
-            else {
-                dragData.target = elements[2].classList.contains('field') ?  Number(elements[3].id) : Number(elements[2].id)
-            }
+            status = 'line'
+
+
+            calculateAway(elements,left,top)
+
+            topAway < leftAway ? calculateLineDrop(elements,left,top) : calculateInlineDrop(elements,left,top)
+
+
+
+
+
+
+
+            dragData.inLine = left > elements[1].offsetWidth/2 ? dragData.inLine= Number(elements[1].id) + 1 : dragData.inLine = Number(elements[2].id)
+
+            console.log(dragData)
+
         }
         //dropping new line (could be top or bottom)
         else if(elements[1] && elements[1].classList.contains('zone')){
@@ -150,6 +160,22 @@
         else {
             status = 'delete'
         }
+    }
+
+    function calculateAway(elements,left,top){
+         leftAway = left < elements[1].offsetWidth/2 ? left : elements[1].offsetWidth - left
+
+         topAway  =  top  < elements[1].offsetHeight/2 ? top  : elements[1].offsetHeight - top
+    }
+
+    function calculateLineDrop(elements,left,top){
+            dragData.line = top > elements[2].offsetHeight/2 ? Number(elements[2].id) + 1
+            : elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+    }
+
+    function calculateInlineDrop(elements,left,top){
+        // dragData.line = top > elements[2].offsetHeight/2 ? Number(elements[2].id) + 1
+        //     : elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
     }
 
 </script>
@@ -164,7 +190,13 @@
             id={j}
     >
         {#each lines as items, i }
-        <div class="cells field" style="background-color: {items.color}">{items.title}</div>
+        <div
+                class="cells field"
+                style="background-color: {items.color}"
+                id={i}
+        >
+        {items.title}
+        </div>
         {/each}
     </div>
     {/each}
