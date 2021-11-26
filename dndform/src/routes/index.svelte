@@ -110,27 +110,34 @@
     }
 
     function addNewCell(item,type){
-        type == 'pUp' ? delete item.placeholder : true
-        console.log(item)
-
         dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 0, item)
             : dropZoneItems.splice(dragData.line, 0, [item]);
         dropZoneItems = dropZoneItems
     }
 
+    function removePlaceHolderKey(){
+        dropZoneItems.map(lines => lines.map(cells => delete cells.placeholder))
+    }
+    function removeCell(){
+        if(dragData.line != undefined){
+             dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 1)
+             : dropZoneItems.splice(dragData.line, 1);
+             dropZoneItems = dropZoneItems
+        }
+
+    }
+
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        console.log(status)
-        if(status === 'add'){
-            addNewCell(dragData.item,'pUp')
-        }
+        removePlaceHolderKey()
+
         dragData.clone.remove()
         dragData = null
     }
 
     function pMove(ev){
-        if(!dragData.clone.parentNode){
+        if (!dragData.clone.parentNode) {
             document.body.appendChild(dragData.clone)
         }
 
@@ -142,20 +149,15 @@
         let left = ev.clientX - underElement.left; //x position within the element.
         let top = ev.clientY - underElement.top;  //y position within the element.
 
-
-        if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {//left right icin iyi calisir
-            if (dragData.Inline){
-                dropZoneItems[dragData.line] =  dropZoneItems[dragData.line].filter(item => !item.placeholder );
-            }
-            else{
-                dropZoneItems = dropZoneItems.filter(item => !item.placeholder );
-            }
+        //delete placeholder
+        if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {
+            removeCell()
             placeholder = null
             return;
         }
 
         //dropping exist line
-        if(elements[1] && elements[1].classList.contains('field') && !placeholder){
+        if (elements[1] && elements[1].classList.contains('field') && !placeholder){
             status = 'add'
             if(left < elements[1].offsetWidth/4 || left > elements[1].offsetWidth*3/4){
              calculateInlineDrop(elements,left)
@@ -170,40 +172,32 @@
                 placeholder: true,
             }
             addNewCell(placeholder)
-            console.log(dragData)
-
-            dropZoneItems = dropZoneItems
         }
-        //dropping new line (could be top or bottom)
-        else if(elements[1] && elements[1].classList.contains('zone')){
+        //dropping first element
+        else if (elements[1] && elements[1].classList.contains('zone')){
             status = 'first'
         }
         //out side of drop zone
         else {
             status = 'delete'
         }
-
     }
 
     function calculateLineDrop(elements,top){
         delete dragData.Inline
-        if(top > elements[2].offsetHeight/2) {
-            previewData.last = dragData.line ==   Number(elements[2].id) + 1 ? 'same' : 'changed'
+        if (top > elements[2].offsetHeight/2) {
               dragData.line = Number(elements[2].id) + 1
         }
-       else{
-            previewData.last = dragData.line ==   Number(elements[2].id)  ? 'same' : 'changed'
+        else {
             dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
-       }
+        }
     }
 
     function calculateInlineDrop(elements,left){
-        if( left > elements[1].offsetWidth/2){
-            previewData.last = dragData.Inline ==  Number(elements[1].id) + 1 ? 'same' : 'changed'
+        if ( left > elements[1].offsetWidth/2){
             dragData.Inline = Number(elements[1].id) + 1
-        }else{
-           // console.log( Number(elements[2].id)   === dragData.Inline, Number(elements[2].id))
-            previewData.last = (dragData.Inline ===  Number(elements[1].id)) || (dragData.Inline ===Number(elements[2].id)) ? 'same' : 'changed'
+        }
+        else {
             dragData.Inline = elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
         }
 
