@@ -150,7 +150,7 @@
         let top = ev.clientY - underElement.top;  //y position within the element.
 
         //delete placeholder
-        if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {
+        if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {// yada ilk geldigim elemanda degilse left ve bottom icin ayirmak gerekebilir.
             removeCell()
             placeholder = null
             return;
@@ -178,9 +178,8 @@
             status = 'first'
         }
         //out side of drop zone
-        else {
-            status = 'delete'
-        }
+
+        console.log(status)
     }
 
     function calculateLineDrop(elements,top){
@@ -200,7 +199,6 @@
         else {
             dragData.Inline = elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
         }
-
     }
 
 </script>
