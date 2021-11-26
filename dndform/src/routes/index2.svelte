@@ -1,144 +1,253 @@
 <script>
-    import {createEventDispatcher} from 'svelte';
+    let
+        status = '', dragData, hoveredItem, leftAway, topAway,  dragCount = 0,
+        previewData
 
-    const dispatch = createEventDispatcher();
+    let placeholder;
 
-    let drop_zone;
-    let drop_zones = [
+    let dragItems = [
+        {
+            id:1,
+            title:'Drag Item 1',
+            color:'brown'
+        },
+        {
+            id:2,
+            title:'Drag Item 2',
+            color:'green'
+        },        {
+            id:3,
+            title:'Drag Item 3',
+            color:'pink'
+        },
+        {
+            id:4 ,
+            title:'Drag Item 4',
+            color:'grey'
+        }
+    ]
+
+    let dropZoneItems = [
         [
-            {el: null, id: 1},
-            {el: null, id: 2},
-            {el: null, id: 3},
+            {
+                id:13,
+                title:'blue',
+                color:'blue'
+            },
+            // {
+            //       id:14,
+            //       title:'green',
+            //       color:'green'
+            // },
         ],
         [
-            {el: null, id: 1},
-            {el: null, id: 2},
-            {el: null, id: 3},
-            {el: null, id: 4},
-            {el: null, id: 5},
-            {el: null, id: 6},
-            {el: null, id: 7},
+            {
+                id:5,
+                title:'yellow',
+                color:'yellow'
+            },
+            {
+                id:6,
+                title:'orange',
+                color:'orange'
+            },
+            {
+                id:7,
+                title:'blue',
+                color:'blue'
+            }
         ],
         [
-            {el: null, id: 4},
-            {el: null, id: 5},
-            {el: null, id: 6},
-            {el: null, id: 7},
-            {el: null, id: 8},
-            {el: null, id: 9},
-            {el: null, id: 10},
-            {el: null, id: 11},
-            {el: null, id: 12},
-            {el: null, id: 13}
-        ]
+            {
+                id:8,
+                title:'green',
+                color:'green'
+            }
+        ],
+        [
+            {
+                id:9,
+                title:'yellow',
+                color:'yellow'
+            },
+            {
+                id:10,
+                title:'blue',
+                color:'blue'
+            },
+            {
+                id:11,
+                title:'orange',
+                color:'orange'
+            },
+            {
+                id:12,
+                title:'red',
+                color:'red'
+            }
+        ],
+    ]
 
-    ];
+    function pdown(ev) {
+        ev.preventDefault()
+        status = 'moving';
+        const clone = ev.target.cloneNode(true);
 
-    let objects = [
-        {el: null, id: 1},
-        {el: null, id: 2},
-        {el: null, id: 3},
-        {el: null, id: 4},
-        {el: null, id: 5},
-        {el: null, id: 6},
-        {el: null, id: 7},
-        {el: null, id: 8},
-        {el: null, id: 9},
-        {el: null, id: 10},
-        {el: null, id: 11},
-        {el: null, id: 12},
-        {el: null, id: 13}
-    ];
-
-    let dropped = [];
-    let status = '';
-
-    let dropped_in = '';
-    let activeEvent = '';
-    let originalX = '';
-    let originalY = '';
-    let index = 0;
-
-    function handleDragDrop(e, j) {
-        if (j != undefined) {
-            console.log('var')
-            index = j
-            drop_zones[index] = drop_zones[index].concat(e.dataTransfer.getData("text"))
-            console.log(drop_zones[index])
+        clone.style.width = "200px";
+        clone.style.position = "absolute";
+        clone.style.opacity = 0.3
+        const item = dragItems.find(o=> o.id === Number(ev.target.getAttribute('data-id')))
+        dragData = {
+            clone,
+            item: item
+        };
+        previewData = {
+            last:''
         }
 
-        let elements = document.elementsFromPoint
-
-
-        e.preventDefault();
-        dropped = dropped.concat(e.dataTransfer.getData("text"));
-        console.log(dropped)
-        dropped_in = true;
-
-
-        // const data=e.dataTransfer.getData("text");
-        // const nodeCopy = document.getElementById(data).cloneNode(true);
-        // nodeCopy.id = "newId";
-        // e.target.appendChild(nodeCopy);
+        window.addEventListener('pointermove',pMove);
+        window.addEventListener('pointerup',pUp);
     }
 
-    function handleDragStart(e) {
-        e.dataTransfer.dropEffect = "move";
-        // e.dataTransfer.setData("text", e.target.getAttribute('id'));
+    function pUp(ev) {
+        window.removeEventListener('pointermove',pMove);
+        window.removeEventListener('pointerup',pUp);
+        if(status==='add'){
+            console.log(dragData)
+            dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 0, dragData.item)
+                : dropZoneItems.splice(dragData.line, 0, [dragData.item]);
 
-        e.dataTransfer.setData("text", e.target.id);
-        e.dataTransfer.effectAllowed = "copy";
-
-    }
-
-    function handleDragEnd(e) {
-        if (dropped_in == false) {
-            console.log('deneme')
+            dropZoneItems = dropZoneItems
         }
-        dropped_in = false;
+        dragData.clone.remove()
+        dragData = null
     }
 
+    function pMove(ev){
+        if(!dragData.clone.parentNode){
+            document.body.appendChild(dragData.clone)
+        }
+
+        dragData.clone.style.left = (ev.clientX - dragData.clone.offsetWidth/2) + "px";
+        dragData.clone.style.top =  (ev.clientY - dragData.clone.offsetHeight/2)+ "px";
+
+        const elements = document.elementsFromPoint(ev.clientX,ev.clientY);
+        let underElement = elements[1].getBoundingClientRect();
+        let left = ev.clientX - underElement.left; //x position within the element.
+        let top = ev.clientY - underElement.top;  //y position within the element.
+
+
+        // if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {
+        //     if (dragData.Inline){
+        //         dropZoneItems[dragData.line] =  dropZoneItems[dragData.line].filter(item => !item.placeholder );
+        //     }
+        //     else{
+        //         console.log(dropZoneItems)
+        //         dropZoneItems = dropZoneItems.filter(item => !item.placeholder );
+        //         console.log('vvvv',dropZoneItems)
+        //
+        //     }
+        //     return;
+        // }
+
+        //dropping exist line
+        if(elements[1] && elements[1].classList.contains('field') && !placeholder){
+            status = 'add'
+            if(left < elements[1].offsetWidth/4 || left > elements[1].offsetWidth*3/4){
+                calculateInlineDrop(elements,left)
+                dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+            }
+            else{
+                calculateLineDrop(elements,top)
+            }
+
+            placeholder = {
+                ...dragData.item,
+                placeholder: true,
+            }
+
+            // if (dragData.Inline) {
+            //     // horizontal insert
+            //     dropZoneItems[dragData.line].splice(dragData.Inline, 0, placeholder);
+            // } else {
+            //     // vertical insert
+            //     dropZoneItems.splice(dragData.line, 0, [placeholder]);
+            // }
+            // dropZoneItems = dropZoneItems
+        }
+        //dropping new line (could be top or bottom)
+        else if(elements[1] && elements[1].classList.contains('zone')){
+            status = 'first'
+        }
+        //out side of drop zone
+        else {
+            status = 'delete'
+        }
+
+    }
+
+    function calculateLineDrop(elements,top){
+        delete dragData.Inline
+        if(top > elements[2].offsetHeight/2) {
+            previewData.last = dragData.line ==   Number(elements[2].id) + 1 ? 'same' : 'changed'
+            dragData.line = Number(elements[2].id) + 1
+        }
+        else{
+            previewData.last = dragData.line ==   Number(elements[2].id)  ? 'same' : 'changed'
+            dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+        }
+    }
+
+    function calculateInlineDrop(elements,left){
+        if( left > elements[1].offsetWidth/2){
+            previewData.last = dragData.Inline ==  Number(elements[1].id) + 1 ? 'same' : 'changed'
+            dragData.Inline = Number(elements[1].id) + 1
+        }else{
+            // console.log( Number(elements[2].id)   === dragData.Inline, Number(elements[2].id))
+            previewData.last = (dragData.Inline ===  Number(elements[1].id)) || (dragData.Inline ===Number(elements[2].id)) ? 'same' : 'changed'
+            dragData.Inline = elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
+        }
+
+    }
 
 </script>
 
-
 <!--drop zone-->
 <div
-        className="drop_zone"
-        on:drop={handleDragDrop}
-        bind:this={drop_zone}
-        onDragOver="return false"
+        class="zone"
 >
-    {#each drop_zones as lineArr , j}
+    {#each dropZoneItems as lines, j }
         <div
-                className="lines"
-                on:drop={(e) => handleDragDrop(e,j)}
+                class="lines"
+                id={j}
         >
-            {#each lineArr as {id} , i}
+            {#each lines as items, i }
                 <div
-                        className="objects"
+                        class="cells field"
+                        style="background-color: {items.color}"
+                        data-placeholder="{items.placeholder}"
+                        id={i}
                 >
-                    Object { id }
+                    {items.title}
                 </div>
             {/each}
         </div>
     {/each}
-
 </div>
 
-<!--element list-->
-{#each objects as {id}, i}
-    <div
-            id="{id}"
-            class="objects"
-            draggable=true
-            bind:this={objects[i].el}
-            on:dragstart={handleDragStart}
-            on:dragend={handleDragEnd}
-    >
-        Object { id }
-    </div>
-{/each}
+<div class="drag-list" id="dragList">
+    {#each dragItems as item }
+        <div
+                class="cells"
+                draggable="true"
+                on:dragstart={pdown}
+                data-id="{item.id}"
+                style="background-color: {item.color};"
+        >
+            {item.title}
+        </div>
+    {/each}
+</div>
 
 <style>
     :global(html), :global(body) {
@@ -147,56 +256,30 @@
         user-select: none;
         -webkit-user-select: none;
     }
-
-    .drop_zone {
+    .lines{
+        font-size: 19px;
+        display: flex;
+        text-align: center;
+        height: 40px;
+    }
+    .cells{
+        border:  1px solid;
+        width: 100%;
+    }
+    .zone {
         background-color: #eee;
         border: #999 1px solid;
-        width: auto;
-        min-width: 50px;
-        min-height: 50px;
-        padding: 8px;
-        font-size: 19px;
-        overflow-x: auto;
-        overflow-y: hidden;
+        width: 100%;
+        height: 300px;
+        margin-bottom: 50px;
     }
 
-    .lines {
-
-        display: grid;
-        grid-gap: 16px;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        grid-auto-flow: column;
-        grid-auto-columns: minmax(160px, 1fr);
+    .drag-list{
+        border:1px solid;
+        width: 200px;
     }
 
-
-    .objects {
-        display: inline-block;
-        background-color: #FFF3CC;
-        border: #DFBC6A 1px solid;
-        width: 50px;
-        height: 50px;
-        margin: 10px;
-        padding: 8px;
-        font-size: 18px;
-        text-align: center;
-        box-shadow: 2px 2px 2px #999;
-        cursor: move;
-        margin-bottom: 33px;
-
-    }
-
-    .droppedElements {
-
-        background-color: #FFF3CC;
-        border: #DFBC6A 1px solid;
-        width: 50px;
-        height: 50px;
-        margin: 10px;
-        padding: 8px;
-        font-size: 18px;
-        text-align: center;
-        box-shadow: 2px 2px 2px #999;
-        margin-bottom: 22px;
+    .field[highlight="1"] {
+        border: 1px solid white;
     }
 </style>

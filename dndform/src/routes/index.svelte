@@ -1,10 +1,10 @@
 <script>
-    let dragCount = 0
-    let status = '';
-    let dragData;
-    let hoveredItem;
-    let leftAway;
-    let topAway;
+    let
+    status = '', dragData, hoveredItem, leftAway, topAway,  dragCount = 0,
+        previewData
+
+    let placeholder;
+
     let dragItems = [
         {
             id:1,
@@ -46,16 +46,16 @@
                 title:'yellow',
                 color:'yellow'
             },
-            // {
-            //     id:6,
-            //     title:'orange',
-            //     color:'orange'
-            // },
-            // {
-            //     id:7,
-            //     title:'blue',
-            //     color:'blue'
-            // }
+            {
+                id:6,
+                title:'orange',
+                color:'orange'
+            },
+            {
+                id:7,
+                title:'blue',
+                color:'blue'
+            }
         ],
         [
             {
@@ -101,20 +101,29 @@
             clone,
             item: item
         };
+       previewData = {
+           last:''
+       }
 
         window.addEventListener('pointermove',pMove);
         window.addEventListener('pointerup',pUp);
     }
 
+    function addNewCell(item,type){
+        type == 'pUp' ? delete item.placeholder : true
+        console.log(item)
+
+        dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 0, item)
+            : dropZoneItems.splice(dragData.line, 0, [item]);
+        dropZoneItems = dropZoneItems
+    }
+
     function pUp(ev) {
         window.removeEventListener('pointermove',pMove);
         window.removeEventListener('pointerup',pUp);
-        if(status==='add'){
-            console.log(dragData)
-            dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 0, dragData.item)
-            : dropZoneItems.splice(dragData.line, 0, [dragData.item]);
-
-            dropZoneItems = dropZoneItems
+        console.log(status)
+        if(status === 'add'){
+            addNewCell(dragData.item,'pUp')
         }
         dragData.clone.remove()
         dragData = null
@@ -132,11 +141,22 @@
         let underElement = elements[1].getBoundingClientRect();
         let left = ev.clientX - underElement.left; //x position within the element.
         let top = ev.clientY - underElement.top;  //y position within the element.
-       //console.log(elements)
+
+
+        if (placeholder && elements[1] && !elements[1].getAttribute('data-placeholder')) {//left right icin iyi calisir
+            if (dragData.Inline){
+                dropZoneItems[dragData.line] =  dropZoneItems[dragData.line].filter(item => !item.placeholder );
+            }
+            else{
+                dropZoneItems = dropZoneItems.filter(item => !item.placeholder );
+            }
+            placeholder = null
+            return;
+        }
+
         //dropping exist line
-        if(elements[1] && elements[1].classList.contains('field')){
+        if(elements[1] && elements[1].classList.contains('field') && !placeholder){
             status = 'add'
-            console.log(elements)
             if(left < elements[1].offsetWidth/4 || left > elements[1].offsetWidth*3/4){
              calculateInlineDrop(elements,left)
              dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
@@ -144,6 +164,15 @@
             else{
                 calculateLineDrop(elements,top)
             }
+
+            placeholder = {
+                ...dragData.item,
+                placeholder: true,
+            }
+            addNewCell(placeholder)
+            console.log(dragData)
+
+            dropZoneItems = dropZoneItems
         }
         //dropping new line (could be top or bottom)
         else if(elements[1] && elements[1].classList.contains('zone')){
@@ -153,17 +182,31 @@
         else {
             status = 'delete'
         }
+
     }
 
     function calculateLineDrop(elements,top){
-            delete dragData.Inline
-            dragData.line = top > elements[2].offsetHeight/2 ? Number(elements[2].id) + 1
-            : elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+        delete dragData.Inline
+        if(top > elements[2].offsetHeight/2) {
+            previewData.last = dragData.line ==   Number(elements[2].id) + 1 ? 'same' : 'changed'
+              dragData.line = Number(elements[2].id) + 1
+        }
+       else{
+            previewData.last = dragData.line ==   Number(elements[2].id)  ? 'same' : 'changed'
+            dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+       }
     }
 
     function calculateInlineDrop(elements,left){
-            dragData.Inline = left > elements[1].offsetWidth/2 ? Number(elements[1].id) + 1
-            : elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
+        if( left > elements[1].offsetWidth/2){
+            previewData.last = dragData.Inline ==  Number(elements[1].id) + 1 ? 'same' : 'changed'
+            dragData.Inline = Number(elements[1].id) + 1
+        }else{
+           // console.log( Number(elements[2].id)   === dragData.Inline, Number(elements[2].id))
+            previewData.last = (dragData.Inline ===  Number(elements[1].id)) || (dragData.Inline ===Number(elements[2].id)) ? 'same' : 'changed'
+            dragData.Inline = elements[2].classList.contains('field') ? Number(elements[2].id) : Number(elements[1].id)
+        }
+
     }
 
 </script>
@@ -181,6 +224,7 @@
         <div
                 class="cells field"
                 style="background-color: {items.color}"
+                data-placeholder="{items.placeholder}"
                 id={i}
         >
         {items.title}
