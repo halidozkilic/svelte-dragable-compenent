@@ -1,6 +1,6 @@
 <script>
     let
-    status = '', dragData, hoveredItem, leftAway, topAway,  dragCount = 0,
+        status = '', dragData, hoveredItem, leftAway, topAway,  dragCount = 0,
         previewData
 
     let placeholder;
@@ -29,16 +29,16 @@
 
     let dropZoneItems = [
         [
-              {
-                    id:13,
-                    title:'blue',
-                    color:'blue'
-              },
-              // {
-              //       id:14,
-              //       title:'green',
-              //       color:'green'
-              // },
+            {
+                id:13,
+                title:'blue',
+                color:'blue'
+            },
+            // {
+            //       id:14,
+            //       title:'green',
+            //       color:'green'
+            // },
         ],
         [
             {
@@ -101,9 +101,9 @@
             clone,
             item: item
         };
-       previewData = {
-           last:''
-       }
+        previewData = {
+            last:''
+        }
 
         window.addEventListener('pointermove',pMove);
         window.addEventListener('pointerup',pUp);
@@ -123,9 +123,9 @@
         document.querySelectorAll(('[data-placeholder=true]'))
             .forEach((element) => element.dataset.placeholder = false);
         if(dragData.line != undefined){
-             dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 1)
-             : dropZoneItems.splice(dragData.line, 1);
-             dropZoneItems = dropZoneItems
+            dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 1)
+                : dropZoneItems.splice(dragData.line, 1);
+            dropZoneItems = dropZoneItems
         }
     }
 
@@ -162,8 +162,8 @@
         if (elements[1] && elements[1].classList.contains('field') && !placeholder){
             status = 'add'
             if(left < elements[1].offsetWidth/4 || left > elements[1].offsetWidth*3/4){
-             calculateInlineDrop(elements,left)
-             dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
+                calculateInlineDrop(elements,left)
+                dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
             }
             else{
                 calculateLineDrop(elements,top)
@@ -176,7 +176,7 @@
             previewData.line = dragData.line
             previewData.Inline = dragData.Inline
 
-           // elements[1].dataset.placeholder = true;
+            elements[1].dataset.placeholder = true;
             placeholder = {
                 ...dragData.item,
                 placeholder: true,
@@ -196,7 +196,7 @@
     function calculateLineDrop(elements,top){
         delete dragData.Inline
         if (top > elements[2].offsetHeight/2) {
-              dragData.line = Number(elements[2].id) + 1
+            dragData.line = Number(elements[2].id) + 1
         }
         else {
             dragData.line = elements[2].classList.contains('field') ? Number(elements[3].id) : Number(elements[2].id)
@@ -219,36 +219,36 @@
         class="zone"
 >
     {#each dropZoneItems as lines, j }
-    <div
-            class="lines"
-            id={j}
-    >
-        {#each lines as items, i }
         <div
-                class="cells field"
-                style="background-color: {items.color}"
-                data-placeholder="{items.placeholder}"
-                id={i}
+                class="lines"
+                id={j}
         >
-        {items.title}
+            {#each lines as items, i }
+                <div
+                        class="cells field"
+                        style="background-color: {items.color}"
+                        data-placeholder="{items.placeholder}"
+                        id={i}
+                >
+                    {items.title}
+                </div>
+            {/each}
         </div>
-        {/each}
-    </div>
     {/each}
 </div>
 
 <div class="drag-list" id="dragList">
     {#each dragItems as item }
-    <div
-            class="cells"
-            draggable="true"
-            on:dragstart={pdown}
-            data-id="{item.id}"
-            style="background-color: {item.color};"
-    >
-        {item.title}
-    </div>
-        {/each}
+        <div
+                class="cells"
+                draggable="true"
+                on:dragstart={pdown}
+                data-id="{item.id}"
+                style="background-color: {item.color};"
+        >
+            {item.title}
+        </div>
+    {/each}
 </div>
 
 <style>
