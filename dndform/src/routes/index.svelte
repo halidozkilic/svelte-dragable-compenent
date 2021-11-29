@@ -118,13 +118,15 @@
     function removePlaceHolderKey(){
         dropZoneItems.map(lines => lines.map(cells => delete cells.placeholder))
     }
+
     function removeCell(){
+        document.querySelectorAll(('[data-placeholder=true]'))
+            .forEach((element) => element.dataset.placeholder = false);
         if(dragData.line != undefined){
              dragData.Inline != undefined ?  dropZoneItems[dragData.line].splice(dragData.Inline, 1)
              : dropZoneItems.splice(dragData.line, 1);
              dropZoneItems = dropZoneItems
         }
-
     }
 
     function pUp(ev) {
@@ -167,10 +169,19 @@
                 calculateLineDrop(elements,top)
             }
 
+            if(previewData.line != dragData.line || previewData.Inline != dragData.Inline){
+                console.log('changed')
+            }
+
+            previewData.line = dragData.line
+            previewData.Inline = dragData.Inline
+
+           // elements[1].dataset.placeholder = true;
             placeholder = {
                 ...dragData.item,
                 placeholder: true,
             }
+
             addNewCell(placeholder)
         }
         //dropping first element
@@ -261,7 +272,7 @@
         background-color: #eee;
         border: #999 1px solid;
         width: 100%;
-        height: 300px;
+        height: auto;
         margin-bottom: 50px;
     }
 
