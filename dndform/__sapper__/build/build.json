@@ -1,0 +1,69 @@
+{
+  "bundler": "rollup",
+  "shimport": "2.0.4",
+  "assets": {
+    "main": "client.d27fdee3.js"
+  },
+  "css": {
+    "main": [
+      "client-596f2e7b.css"
+    ]
+  },
+  "dependencies": {
+    "index.svelte": [
+      "index.ab2be478.js",
+      "Form.1c834f32.js",
+      "Row.b5001d66.js",
+      "Cell.c2333710.js",
+      "Placeholder.e71b9f30.js",
+      "inject_styles.5607aec6.js",
+      "Cell-f2ba04c4.css",
+      "Placeholder-c8c288ae.css",
+      "Row-5795e25f.css",
+      "Form-47a8ead1.css",
+      "index-9e05af6f.css"
+    ],
+    "placeholder.svelte": [
+      "Placeholder.e71b9f30.js",
+      "inject_styles.5607aec6.js",
+      "Placeholder-c8c288ae.css"
+    ],
+    "example.svelte": [
+      "Example.4d9271bb.js",
+      "inject_styles.5607aec6.js"
+    ],
+    "draggable.js": [
+      "Cell.c2333710.js",
+      "inject_styles.5607aec6.js",
+      "Cell-f2ba04c4.css"
+    ],
+    "cell.svelte": [
+      "Cell.c2333710.js",
+      "inject_styles.5607aec6.js",
+      "Cell-f2ba04c4.css"
+    ],
+    "form.svelte": [
+      "Form.1c834f32.js",
+      "Row.b5001d66.js",
+      "Cell.c2333710.js",
+      "Placeholder.e71b9f30.js",
+      "inject_styles.5607aec6.js",
+      "Cell-f2ba04c4.css",
+      "Placeholder-c8c288ae.css",
+      "Row-5795e25f.css",
+      "Form-47a8ead1.css"
+    ],
+    "row.svelte": [
+      "Row.b5001d66.js",
+      "Cell.c2333710.js",
+      "Placeholder.e71b9f30.js",
+      "inject_styles.5607aec6.js",
+      "Cell-f2ba04c4.css",
+      "Placeholder-c8c288ae.css",
+      "Row-5795e25f.css"
+    ]
+  },
+  "legacy_assets": {
+    "main": "client.438974d5.js"
+  }
+}
