@@ -35,22 +35,22 @@
   ];
 
   let dropZoneItems = [
-    // [{ id: 13, title: "Item (blue)", color: COLORS.blue }],
-    // [
-    //   { id: 5, title: "Item (yellow)", color: COLORS.yellow },
-    //   { id: 6, title: "Item (orange)", color: COLORS.orange },
-    //   { id: 7, title: "Item (blue)", color: "#22228d" },
-    // ],
-    // [{ id: 8, title: "Item (green)", color: COLORS.green }],
-    // [
-    //   { id: 9, title: "Item (yellow)", color: COLORS.yellow },
-    //   { id: 10, title: "Item (blue)", color: COLORS.blue },
-    //   { id: 11, title: "Item (orange)", color: COLORS.orange },
-    //   { id: 12, title: "Item (red)", color: COLORS.red },
-    //   { id: 13, title: "Item (red)", color: COLORS.red },
-    //   { id: 14, title: "Item (red)", color: COLORS.red },
-    //   { id: 16, title: "Item (red)", color: COLORS.red },
-    // ],
+    [{ id: 13, title: "Item (blue)", color: COLORS.blue }],
+    [
+      { id: 5, title: "Item (yellow)", color: COLORS.yellow },
+      { id: 6, title: "Item (orange)", color: COLORS.orange },
+      { id: 7, title: "Item (blue)", color: "#22228d" },
+    ],
+    [{ id: 8, title: "Item (green)", color: COLORS.green }],
+    [
+      { id: 9, title: "Item (yellow)", color: COLORS.yellow },
+      { id: 10, title: "Item (blue)", color: COLORS.blue },
+      { id: 11, title: "Item (orange)", color: COLORS.orange },
+      { id: 12, title: "Item (red)", color: COLORS.red },
+      { id: 13, title: "Item (red)", color: COLORS.red },
+      { id: 14, title: "Item (red)", color: COLORS.red },
+      { id: 16, title: "Item (red)", color: COLORS.red },
+    ],
   ];
 
   function generatePlaceHolder(vIdx, hIdx) {
@@ -110,8 +110,8 @@
 
     if (onField && !dontMove) {
       const onHorizontal =
-        draggable.left < activeArea ||
-        draggable.left > draggable.elements[1].offsetWidth - activeArea;
+        draggable.left < draggable.elements[1].offsetWidth/4 ||
+        draggable.left > draggable.elements[1].offsetWidth*3/4 - activeArea;
 
       let hIdx;
       let vIdx;
